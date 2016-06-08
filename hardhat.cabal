@@ -10,12 +10,13 @@ maintainer:          eriknstevenson@gmail.com
 copyright:           (c) 2016 Erik Stevenson
 category:            Web
 build-type:          Simple
--- extra-source-files:
+extra-source-files:  readme.md
 cabal-version:       >=1.10
 
 library
   hs-source-dirs:      src
   exposed-modules:     HardHat
+  ghc-options:         -Wall
   build-depends:       base >= 4.7 && < 5
                      , attoparsec
                      , lucid
@@ -25,9 +26,10 @@ library
 executable hardhat
   hs-source-dirs:      app
   main-is:             Main.hs
-  ghc-options:         -threaded -rtsopts -with-rtsopts=-N
+  ghc-options:         -threaded -rtsopts -with-rtsopts=-N -Wall
   build-depends:       base
                      , hardhat
+                     , optparse-generic
   default-language:    Haskell2010
 
 test-suite hardhat-test
@@ -37,7 +39,7 @@ test-suite hardhat-test
   build-depends:       base
                      , hardhat
                      , hspec
-  ghc-options:         -threaded -rtsopts -with-rtsopts=-N
+  ghc-options:         -threaded -rtsopts -with-rtsopts=-N -Wall
   default-language:    Haskell2010
 
 source-repository head
