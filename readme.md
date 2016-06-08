@@ -28,4 +28,4 @@ stack test
 ```
 
 ## Known issues
-See the issue tracker.
+See the [issue tracker](https://github.com/narrative/hardhat/issues).
