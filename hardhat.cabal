@@ -18,9 +18,6 @@ library
   exposed-modules:     HardHat
   ghc-options:         -Wall
   build-depends:       base >= 4.7 && < 5
-                     , attoparsec
-                     , lucid
-                     , text
   default-language:    Haskell2010
 
 executable hardhat

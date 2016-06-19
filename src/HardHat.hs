@@ -1,13 +1,10 @@
-{-# LANGUAGE OverloadedStrings #-}
 
 module HardHat where
 
-import           Control.Applicative ((<|>))
-import           Control.Monad
-import           Data.Attoparsec.ByteString.Char8 hiding (space)
-import           Data.Char
-import qualified Data.Text.Lazy as T
-import           Lucid
+import Control.Applicative hiding (optional)
+import Control.Monad
+import Data.Char
+import Text.ParserCombinators.ReadP
 
 tab, cr, space, nl, lt, ff :: Char
 tab   = toEnum 0x0009
@@ -21,22 +18,23 @@ ff    = toEnum 0x000C
   A line is a sequence of zero or more characters other than newline (U+000A) or
   carriage return (U+000D), followed by a line ending or by the end of file.
 -}
-line :: Parser String
-line = manyTill' anyChar lineEnding
+line :: ReadP String
+line = manyTill (satisfy $ const True) lineEnding
 
 {- |
   A line ending is a newline (U+000A), a carriage return (U+000D) not followed
   by a newline, or a carriage return and a following newline.
 -}
-lineEnding :: Parser ()
-lineEnding = endOfLine <|> endOfInput
+lineEnding :: ReadP ()
+lineEnding = (char nl >> pure ()) <|>
+             (char cr >> optional (char nl))
 
 {- |
   A line containing no characters, or a line containing only spaces (U+0020) or
   tabs (U+0009), is called a blank line.
 -}
-blankLine :: Parser ()
-blankLine = void $ manyTill' (satisfy (\c -> c == space || c == tab)) lineEnding
+blankLine :: ReadP ()
+blankLine = void $ manyTill (satisfy (\c -> c == space || c == tab)) lineEnding
 
 {- |
   A whitespace character is a space (U+0020), tab (U+0009), newline (U+000A),
@@ -55,7 +53,7 @@ isWhitespaceChar c
 {- |
   Whitespace is a sequence of one or more whitespace characters.
 -}
-whitespace :: Parser ()
+whitespace :: ReadP ()
 whitespace = void $ many1 (satisfy isWhitespaceChar)
 
 {- |
@@ -75,7 +73,7 @@ unicodeWhitespaceChar c
 {- |
   Unicode whitespace is a sequence of one or more Unicode whitespace characters.
 -}
-unicodeWhitespace :: Parser ()
+unicodeWhitespace :: ReadP ()
 unicodeWhitespace = void $ many1 (satisfy unicodeWhitespaceChar)
 
 {- |
@@ -96,7 +94,7 @@ isNonWhitespaceChar = not . isWhitespaceChar
 -}
 isAsciiPunctuationChar :: Char -> Bool
 isAsciiPunctuationChar =
-  inClass "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~"
+  flip elem "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~"
 
 {- |
   A punctuation character is an ASCII punctuation character or anything in the
